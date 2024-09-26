@@ -1,22 +1,49 @@
-import socket as s  # Importa il modulo socket e assegna l'alias 's'
+import socket as s
+import threading
 
 # Crea un socket client UDP
 udp_client_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
 
-# Definisce il messaggio da inviare al server
-message = b'Ciao server!'  # Il messaggio è una stringa di byte (b'...')
-
 # Definisce l'indirizzo del server e la porta
-server_address = ("192.168.65.103", 6980)
+server_address = ("192.168.1.21", 6980)
 
-# Definisce la dimensione del buffer per l'invio e la ricezione dei dati
-BUFFER_SIZE = 4092  # La dimensione del buffer è di 4092 byte
+# Definisce la dimensione del buffer per la ricezione dei dati
+BUFFER_SIZE = 4092
 
-# Invia il messaggio al server utilizzando il metodo sendto
-udp_client_socket.sendto(message, server_address)
+# Invia un messaggio iniziale per connettersi al server
+udp_client_socket.sendto(b'Ciao server!', server_address)
 
-# Metto la socket in ascolto e attendo la ricezione di dati
-data, server_address = udp_client_socket.recvfrom(BUFFER_SIZE)
+# Thread per ricevere messaggi
+def ricevi_messaggi():
+    while True:
+        try:
+            data, addr = udp_client_socket.recvfrom(BUFFER_SIZE)
+            print(f"Messaggio ricevuto dal server: {data.decode()} da {addr}")
+        except Exception as e:
+            print(f"Errore durante la ricezione: {e}")
+            break
 
-#Stampo un messaggio che indica che i dati sono stati ricevuti dal server
-print(f"Messaggio ricevuto da server: {data.decode()} da {server_address}")
+# Thread per inviare messaggi
+def invia_messaggi():
+    while True:
+        try:
+            message = input("Client: ")
+            udp_client_socket.sendto(message.encode(), server_address)
+        except Exception as e:
+            print(f"Errore durante l'invio: {e}")
+            break
+
+# Crea i thread
+ricevi_thread = threading.Thread(target=ricevi_messaggi)
+invia_thread = threading.Thread(target=invia_messaggi)
+
+# Avvia i thread
+ricevi_thread.start()
+invia_thread.start()
+
+# Unisci i thread per mantenerli attivi fino alla fine
+ricevi_thread.join()
+invia_thread.join()
+
+# Chiudi la socket alla fine
+udp_client_socket.close()
