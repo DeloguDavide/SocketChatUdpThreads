@@ -17,8 +17,8 @@ udp_client_socket.sendto(b'Ciao server!', server_address)
 def ricevi_messaggi():
     while True:
         try:
-            data, addr = udp_client_socket.recvfrom(BUFFER_SIZE)
-            print(f"Messaggio ricevuto dal server: {data.decode()} da {addr}")
+            data, address = udp_client_socket.recvfrom(BUFFER_SIZE)
+            print(f"Messaggio ricevuto dal server: {data.decode()} da {address}")
         except Exception as e:
             print(f"Errore durante la ricezione: {e}")
             break

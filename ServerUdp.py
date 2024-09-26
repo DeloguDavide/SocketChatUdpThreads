@@ -21,12 +21,10 @@ def ricevi_messaggi():
     global client_address
     while True:
         try:
-            data, addr = udp_server_socket.recvfrom(BUFFER_SIZE)
-            print(f"Messaggio ricevuto dal client: {data.decode()} da {addr}")
-            client_address = addr
+            data, address = udp_server_socket.recvfrom(BUFFER_SIZE)
+            print(f"Messaggio ricevuto dal client: {data.decode()} da {address}")
+            client_address = address
             
-            # Rispondi al client con un messaggio di conferma
-            udp_server_socket.sendto(f"Server ha ricevuto: {data.decode()}".encode("utf-8"), addr)
         except Exception as e:
             print(f"Errore durante la ricezione: {e}")
             break
